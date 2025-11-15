@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ContentPilot</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --muted:#94a3b8; --accent:#06b6d4; --glass:rgba(255,255,255,0.03);
+    --radius:12px; --gap:16px; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:
+    linear-gradient(180deg, rgba(6,182,212,0.06), rgba(0,0,0,0.02)),
+    var(--bg); color:#e6eef6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    padding:28px;
+  }
+  .container{max-width:1100px; margin:0 auto; display:grid; grid-template-columns: 1fr 380px; gap:24px;}
+  header{grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:700}
+  h1{font-size:18px;margin:0}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+  /* Left column cards */
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:18px;border-radius:var(--radius); box-shadow: 0 6px 18px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.03)}
+  .hero{display:flex;gap:18px;align-items:center}
+  .hero-left{flex:1}
+  .cta-row{display:flex;gap:10px;margin-top:14px}
+  .btn{background:var(--accent);color:#042028;padding:10px 14px;border-radius:10px;border:none;font-weight:600;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  /* Composer */
+  .composer{margin-top:18px;display:flex;gap:12px;flex-direction:column}
+  textarea{width:100%;min-height:96px;padding:12px;border-radius:10px;background:transparent;border:1px dashed rgba(255,255,255,0.04);color:inherit;resize:vertical}
+  .composer-tools{display:flex;gap:8px;align-items:center;justify-content:space-between}
+  .lefttools{display:flex;gap:8px;align-items:center}
+  .chip{background:var(--glass);padding:6px 10px;border-radius:999px;font-size:13px;color:var(--muted);border:1px solid rgba(255,255,255,0.02)}
+  /* Right sidebar */
+  aside{position:relative}
+  .sidebar-top{display:flex;flex-direction:column;gap:12px}
+  .section-title{font-size:13px;color:var(--muted);margin-bottom:8px}
+  /* Media library grid */
+  .media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .media-item{height:64px;border-radius:8px;background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;border:1px solid rgba(255,255,255,0.02)}
+  /* Calendar placeholder */
+  .calendar{height:220px;border-radius:10px;padding:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;color:var(--muted)}
+  /* Features grid */
+  .features{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px}
+  .feature{padding:12px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.02);font-size:13px;color:var(--muted)}
+  footer{grid-column:1/-1;margin-top:12px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+  /* Responsive */
+  @media (max-width:980px){.container{grid-template-columns:1fr; padding:16px} aside{order:-1} .hero{flex-direction:column;align-items:flex-start}}
+  /* Tiny utilities */
+  .muted{color:var(--muted)}
+  .stat{font-size:20px;font-weight:700}
+  .small{font-size:13px;color:var(--muted)}
+  .pill{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:999px;font-weight:600}
+  /* sim UI */
+  .result{white-space:pre-wrap;background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);min-height:60px}
+  .hint{font-size:12px;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+  <div class="container" role="main">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden>CP</div>
+        <div>
+          <h1>ContentPilot</h1>
+          <p class="lead">AI-powered content creator & scheduler</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn" id="newPostBtn">New Post</button>
+        <button class="btn ghost" id="helpBtn" aria-label="Help">?</button>
+      </div>
+    </header>
+
+    <!-- left column -->
+    <section>
+      <div class="card hero" aria-labelledby="hero-title">
+        <div class="hero-left">
+          <h2 id="hero-title" style="margin:0 0 6px 0">Create posts in seconds</h2>
+          <div class="muted">Generate captions, hashtags, and images with built-in AI (simulated).</div>
+
+          <div class="composer">
+            <label class="small" for="prompt">AI prompt / idea</label>
+            <textarea id="prompt" placeholder="Type an idea: 'Promo for 20% discount on summer shoes'"></textarea>
+            <div class="composer-tools">
+              <div class="lefttools">
+                <div class="chip" id="toneChip">Tone: Friendly</div>
+                <select id="tone" aria-label="Select tone" style="background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit;padding:6px;border-radius:8px">
+                  <option>Friendly</option><option>Professional</option><option>Humorous</option>
+                </select>
+                <div class="chip">Platform: Instagram</div>
+              </div>
+              <div>
+                <button class="btn" id="generateBtn">Generate</button>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-title">AI Output</div>
+              <div class="result" id="aiResult">Try generating a caption — results appear here.</div>
+              <div class="hint">Buttons: <button class="pill" id="copyBtn">Copy</button> <button class="pill" id="saveDraftBtn">Save draft</button></div>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:center">
+              <input id="scheduleDate" type="datetime-local" style="background:transparent;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:inherit">
+              <button class="btn" id="scheduleBtn">Schedule</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="width:300px">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="card" style="padding:10px">
+              <div class="small">Quick stats</div>
+              <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+                <div><div class="stat" id="statPosts">0</div><div class="small muted">posts generated</div></div>
+                <div style="width:1px;height:40px;background:rgba(255,255,255,0.03)"></div>
+                <div><div class="stat" id="statDrafts">0</div><div class="small muted">drafts</div></div>
+              </div>
+            </div>
+
+            <div class="card small">
+              <div class="small">Pro tip</div>
+              <div style="margin-top:8px;color:var(--muted)">Use short, clear prompts. Try: "Write 3 Instagram captions about eco sneakers".</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+        <div class="card">
+          <div class="section-title">Recent drafts</div>
+          <div id="draftsList" class="small muted">No drafts yet.</div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Scheduled posts</div>
+          <div id="scheduledList" class="small muted">No scheduled posts.</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="section-title">Features</div>
+        <div class="features">
+          <div class="feature">AI Captioning</div>
+          <div class="feature">Auto Hashtags</div>
+          <div class="feature">Media library</div>
+          <div class="feature">Cross-platform</div>
+          <div class="feature">Voice-to-post (demo)</div>
+          <div class="feature">Analytics (mock)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- right sidebar -->
+    <aside>
+      <div class="card sidebar-top">
+        <div>
+          <div class="section-title">Media Library</div>
+          <div class="media-grid" id="mediaGrid">
+            <div class="media-item">img1.jpg</div>
+            <div class="media-item">img2.jpg</div>
+            <div class="media-item">img3.jpg</div>
+            <div class="media-item">img4.jpg</div>
+            <div class="media-item">img5.jpg</div>
+            <div class="media-item">img6.jpg</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-title">Content Calendar</div>
+          <div class="calendar" id="calendar">
+            <div class="small">Month view (placeholder)</div>
+            <div class="muted">Drag scheduled posts here</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-title">Templates</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn ghost" data-template="New product launch - short">Product launch (short)</button>
+            <button class="btn ghost" data-template="Weekly tips - list">Weekly tips (list)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="section-title">Settings</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label class="small">Language
+            <select id="lang" style="width:100%;margin-top:6px;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit">
+              <option>English</option><option>Українська</option>
+            </select>
+          </label>
+          <label class="small">Pricing plan
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <button class="btn ghost" id="freePlan">Free</button>
+              <button class="btn" id="proPlan">Pro</button>
+            </div>
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <footer>
+      <div>© ContentPilot</div>
+      <div class="muted small"></div>
+    </footer>
+  </div>
+
+<script>
+  // Simple simulated AI generator (no external calls).
+  const generateBtn = document.getElementById('generateBtn');
+  const aiResult = document.getElementById('aiResult');
+  const promptEl = document.getElementById('prompt');
+  const toneEl = document.getElementById('tone');
+  const statPosts = document.getElementById('statPosts');
+  const statDrafts = document.getElementById('statDrafts');
+  const draftsList = document.getElementById('draftsList');
+  const scheduledList = document.getElementById('scheduledList');
+  const copyBtn = document.getElementById('copyBtn');
+  const saveDraftBtn = document.getElementById('saveDraftBtn');
+  let postsCount = 0;
+  let drafts = JSON.parse(localStorage.getItem('cp_drafts') || '[]');
+  let scheduled = JSON.parse(localStorage.getItem('cp_scheduled') || '[]');
+
+  function renderDrafts(){
+    if(!drafts.length){ draftsList.innerHTML = '<div class="muted small">No drafts yet.</div>'; return; }
+    draftsList.innerHTML = drafts.map((d,i)=>`<div style="padding:8px;border-radius:8px;background:rgba(255,255,255,0.01);margin-bottom:8px"><strong>Draft ${i+1}:</strong><div class="muted small">${escapeHtml(d).slice(0,120)}</div></div>`).join('');
+    statDrafts.textContent = drafts.length;
+  }
+  function renderScheduled(){
+    if(!scheduled.length){ scheduledList.innerHTML = '<div class="muted small">No scheduled posts.</div>'; return; }
+    scheduledList.innerHTML = scheduled.map((s,i)=>`<div style="padding:8px;border-radius:8px;background:rgba(255,255,255,0.01);margin-bottom:8px"><strong>${new Date(s.when).toLocaleString()}</strong><div class="muted small">${escapeHtml(s.content).slice(0,120)}</div></div>`).join('');
+  }
+
+  function escapeHtml(text){ return String(text).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  generateBtn.addEventListener('click', ()=>{
+    const prompt = promptEl.value.trim();
+    const tone = toneEl.value;
+    if(!prompt){ aiResult.textContent = 'Please provide an idea or prompt.'; return; }
+    // Simple simulated "AI" -- constructs variants
+    const base = [
+      `Quick post: ${prompt}. ${tone==='Friendly'?'Don\'t miss out!':'Learn more.'}`,
+      `Engaging caption: ${prompt}. ${tone==='Humorous'?'LOL!':'Discover now.'}`,
+      `Long caption: ${prompt}. ${tone==='Professional'?'Read the full details below.':'Tell us what you think!'}`
+    ];
+    const hashtags = ['#ContentPilot','#AI','#SocialMedia'];
+    aiResult.textContent = base.join('\\n\\n') + '\\n\\n' + hashtags.join(' ');
+    postsCount += 1;
+    statPosts.textContent = postsCount;
+  });
+
+  copyBtn.addEventListener('click', async ()=>{
+    const text = aiResult.textContent;
+    try{
+      await navigator.clipboard.writeText(text);
+      copyBtn.textContent = 'Copied!';
+      setTimeout(()=>copyBtn.textContent='Copy',1300);
+    }catch(e){ alert('Copy not supported.'); }
+  });
+
+  saveDraftBtn.addEventListener('click', ()=>{
+    const text = aiResult.textContent.trim();
+    if(!text){ alert('Nothing to save. Generate first.'); return; }
+    drafts.unshift(text);
+    localStorage.setItem('cp_drafts', JSON.stringify(drafts));
+    renderDrafts();
+    saveDraftBtn.textContent = 'Saved';
+    setTimeout(()=>saveDraftBtn.textContent='Save draft',1200);
+  });
+
+  // Scheduling
+  document.getElementById('scheduleBtn').addEventListener('click', ()=>{
+    const when = document.getElementById('scheduleDate').value;
+    const content = aiResult.textContent.trim();
+    if(!content){ alert('Generate content first.'); return; }
+    if(!when){ alert('Choose date and time.'); return; }
+    scheduled.unshift({when: new Date(when).toISOString(), content});
+    localStorage.setItem('cp_scheduled', JSON.stringify(scheduled));
+    renderScheduled();
+    alert('Post scheduled (demo).');
+  });
+
+  // Templates buttons
+  document.querySelectorAll('button[data-template]').forEach(btn=>{
+    btn.addEventListener('click', ()=> {
+      promptEl.value = btn.getAttribute('data-template');
+      generateBtn.click();
+    });
+  });
+
+  // New post quick action
+  document.getElementById('newPostBtn').addEventListener('click', ()=> { promptEl.focus(); promptEl.value = ''; aiResult.textContent=''; });
+
+  // Load stored data
+  (function init(){
+    renderDrafts();
+    renderScheduled();
+    statPosts.textContent = postsCount;
+  })();
+
+  // Accessibility helpers
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'k' && (e.ctrlKey || e.metaKey)){
+      e.preventDefault();
+      promptEl.focus();
+    }
+  });
+</script>
+</body>
+</html>
